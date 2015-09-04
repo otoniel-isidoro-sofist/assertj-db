@@ -40,10 +40,12 @@ public class AssertionsOnValueEquality_IsEqualTo_Number_Test {
     TableAssert tableAssert = assertThat(table);
     TableAssert tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, 8, 8);
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, null, (Number) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
   /**
-   * This method should fail because the value is greater than or equal to.
+   * This method should fail because the value is not equal to.
    */
   @Test
   public void should_fail_because_value_is_not_equal_to() {
@@ -60,6 +62,16 @@ public class AssertionsOnValueEquality_IsEqualTo_Number_Test {
                                                       + "  <9>%n"
                                                       + "to be equal to: %n"
                                                       + "  <8>"));
+    }
+    try {
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info, 9, (Number) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <9>%n"
+                                                                    + "to be equal to: %n"
+                                                                    + "  <null>"));
     }
   }
 

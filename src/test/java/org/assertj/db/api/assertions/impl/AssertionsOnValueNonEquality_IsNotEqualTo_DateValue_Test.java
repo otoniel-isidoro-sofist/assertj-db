@@ -49,10 +49,17 @@ public class AssertionsOnValueNonEquality_IsNotEqualTo_DateValue_Test {
                                                              Timestamp.valueOf("2007-12-23 00:00:05"),
                                                              DateValue.of(2007, 12, 23));
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, Date.valueOf("2007-12-24"),
+                                                             (DateValue) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                             Timestamp.valueOf("2007-12-23 00:00:05"),
+                                                             (DateValue) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
   /**
-   * This method should fail because the value is greater than or equal to.
+   * This method should fail because the value is equal to.
    */
   @Test
   public void should_fail_because_value_is_equal_to() {
@@ -81,6 +88,16 @@ public class AssertionsOnValueNonEquality_IsNotEqualTo_DateValue_Test {
                                                       + "  <2007-12-23T00:00:00.000000000>%n"
                                                       + "not to be equal to: %n"
                                                       + "  <2007-12-23T00:00:00.000000000>"));
+    }
+    try {
+      AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, null, (DateValue) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <null>%n"
+                                                                    + "not to be equal to: %n"
+                                                                    + "  <null>"));
     }
   }
 

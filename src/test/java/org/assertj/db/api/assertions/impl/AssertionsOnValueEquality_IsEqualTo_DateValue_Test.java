@@ -46,10 +46,12 @@ public class AssertionsOnValueEquality_IsEqualTo_DateValue_Test {
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
     tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, Timestamp.valueOf("2007-12-23 00:00:00"), DateValue.of(2007, 12, 23));
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, null, (DateValue) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
   /**
-   * This method should fail because the value is greater than or equal to.
+   * This method should fail because the value is not equal to.
    */
   @Test
   public void should_fail_because_value_is_not_equal_to() {
@@ -76,6 +78,26 @@ public class AssertionsOnValueEquality_IsEqualTo_DateValue_Test {
                                                       + "  <2007-12-24T00:00:00.000000000>%n"
                                                       + "to be equal to: %n"
                                                       + "  <2007-12-23T00:00:00.000000000>"));
+    }
+    try {
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info, Date.valueOf("2007-12-24"), (DateValue) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <2007-12-24>%n"
+                                                                    + "to be equal to: %n"
+                                                                    + "  <null>"));
+    }
+    try {
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info, Timestamp.valueOf("2007-12-24 00:00:00"), (DateValue) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <2007-12-24T00:00:00.000000000>%n"
+                                                                    + "to be equal to: %n"
+                                                                    + "  <null>"));
     }
   }
 

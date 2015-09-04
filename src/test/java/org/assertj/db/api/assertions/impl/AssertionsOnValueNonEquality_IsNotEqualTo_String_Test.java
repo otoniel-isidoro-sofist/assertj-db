@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 import static org.assertj.db.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -61,10 +62,37 @@ public class AssertionsOnValueNonEquality_IsNotEqualTo_String_Test {
                                                              Timestamp.valueOf("2007-12-23 09:01:05"),
                                                              "2007-12-23T09:01");
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                             UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+                                                             "0E2A1269-EFF0-4233-B87B-B53E8B6F164D");
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, "test1", (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, 9, (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, Date.valueOf("2007-12-24"),
+                                                             (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                             Timestamp.valueOf("2007-12-24 00:00:00"), (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, Time.valueOf("09:01:05"), (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info, Date.valueOf("2007-12-24"),
+                                                             (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                             Timestamp.valueOf("2007-12-23 09:01:05"),
+                                                             (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
+    tableAssert2 = AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                             UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+                                                             (String) null);
+    Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
   /**
-   * This method should fail because the value is greater than or equal to.
+   * This method should fail because the value is equal to.
    */
   @Test
   public void should_fail_because_value_is_equal_to() {
@@ -143,6 +171,30 @@ public class AssertionsOnValueNonEquality_IsNotEqualTo_String_Test {
                                                       + "  <\"2007-12-23T09:01:00.000000000\">%n"
                                                       + "not to be equal to: %n"
                                                       + "  <\"2007-12-23T09:01\">"));
+    }
+    try {
+      AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+                                                "30B443AE-C0C9-4790-9BEC-CE1380808435");
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <\"30b443ae-c0c9-4790-9bec-ce1380808435\">%n"
+                                                                    + "not to be equal to: %n"
+                                                                    + "  <\"30B443AE-C0C9-4790-9BEC-CE1380808435\">"));
+    }
+    try {
+      AssertionsOnValueNonEquality.isNotEqualTo(tableAssert, info,
+                                                null,
+                                                (String) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <null>%n"
+                                                                    + "not to be equal to: %n"
+                                                                    + "  <null>"));
     }
   }
 

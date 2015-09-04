@@ -16,22 +16,20 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.WritableAssertionInfo;
 import org.assertj.db.api.TableAssert;
 import org.assertj.db.type.Table;
-import org.assertj.db.type.TimeValue;
 import org.junit.Test;
 
-import java.sql.Time;
+import java.util.UUID;
 
 import static org.assertj.db.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
  * Tests on {@link  AssertionsOnValueEquality} class :
- * {@link  AssertionsOnValueEquality#isEqualTo(org.assertj.db.api.AbstractAssert, org.assertj.core.api.WritableAssertionInfo, Object, org.assertj.db.type.TimeValue)} method.
+ * {@link  AssertionsOnValueEquality#isEqualTo(org.assertj.db.api.AbstractAssert, org.assertj.core.api.WritableAssertionInfo, Object, java.util.UUID)} method.
  *
  * @author Régis Pouiller
- *
  */
-public class AssertionsOnValueEquality_IsEqualTo_TimeValue_Test {
+public class AssertionsOnValueEquality_IsEqualTo_UUID_Test {
 
   /**
    * This method tests the {@code isEqualTo} assertion method.
@@ -41,9 +39,13 @@ public class AssertionsOnValueEquality_IsEqualTo_TimeValue_Test {
     WritableAssertionInfo info = new WritableAssertionInfo();
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    TableAssert tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, Time.valueOf("09:01:00"), TimeValue.of(9, 1));
+    TableAssert tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info,
+            UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+            UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"));
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
-    tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info, null, (TimeValue) null);
+    tableAssert2 = AssertionsOnValueEquality.isEqualTo(tableAssert, info,
+                                                       null,
+                                                       (UUID) null);
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
@@ -57,47 +59,52 @@ public class AssertionsOnValueEquality_IsEqualTo_TimeValue_Test {
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
     try {
-      AssertionsOnValueEquality.isEqualTo(tableAssert, info, Time.valueOf("09:01:05"), TimeValue.of(9, 1));
-      fail("An exception must be raised");
-    } catch (AssertionError e) {
-      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
-                                                      + "Expecting:%n"
-                                                      + "  <09:01:05.000000000>%n"
-                                                      + "to be equal to: %n"
-                                                      + "  <09:01:00.000000000>"));
-    }
-    try {
-      AssertionsOnValueEquality.isEqualTo(tableAssert, info, Time.valueOf("09:01:05"), (TimeValue) null);
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info,
+                                          UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+                                          UUID.fromString("0E2A1269-EFF0-4233-B87B-B53E8B6F164D"));
       fail("An exception must be raised");
     } catch (AssertionError e) {
       Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
                                                                     + "Expecting:%n"
-                                                                    + "  <09:01:05.000000000>%n"
+                                                                    + "  <30b443ae-c0c9-4790-9bec-ce1380808435>%n"
+                                                                    + "to be equal to: %n"
+                                                                    + "  <0e2a1269-eff0-4233-b87b-b53e8b6f164d>"));
+    }
+    try {
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info,
+                                          UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"),
+                                          (UUID) null);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <30b443ae-c0c9-4790-9bec-ce1380808435>%n"
                                                                     + "to be equal to: %n"
                                                                     + "  <null>"));
     }
   }
 
   /**
-   * This method should fail because the value is not a time.
+   * This method should fail because the value is not a uuid.
    */
   @Test
-  public void should_fail_because_value_is_not_a_time() {
+  public void should_fail_because_value_is_not_a_uuid() {
     WritableAssertionInfo info = new WritableAssertionInfo();
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
     try {
-      AssertionsOnValueEquality.isEqualTo(tableAssert, info, 8, TimeValue.of(9, 1));
+      AssertionsOnValueEquality.isEqualTo(tableAssert, info, 8,
+                                          UUID.fromString("30B443AE-C0C9-4790-9BEC-CE1380808435"));
       fail("An exception must be raised");
     } catch (AssertionError e) {
       Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
-                                                      + "Expecting:%n"
-                                                      + "  <8>%n"
-                                                      + "to be of type%n"
-                                                      + "  <TIME>%n"
-                                                      + "but was of type%n"
-                                                      + "  <NUMBER>"));
+                                                                    + "Expecting:%n"
+                                                                    + "  <8>%n"
+                                                                    + "to be of type%n"
+                                                                    + "  <UUID>%n"
+                                                                    + "but was of type%n"
+                                                                    + "  <NUMBER>"));
     }
   }
 }
