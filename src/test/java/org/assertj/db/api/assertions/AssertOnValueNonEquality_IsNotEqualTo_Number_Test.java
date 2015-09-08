@@ -54,7 +54,7 @@ public class AssertOnValueNonEquality_IsNotEqualTo_Number_Test extends AbstractT
   }
 
   /**
-   * This method should fail because the value is greater than or equal to.
+   * This method should fail because the value is equal to.
    */
   @Test
   @NeedReload

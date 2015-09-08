@@ -112,7 +112,8 @@ public abstract class AbstractTest {
           "update test set var11 = FILE_READ('classpath:logo-dev.jpg') where var1 = 10",
           "update test set var11 = FILE_READ('classpath:logo-dev.jpg') where var1 = 100",
           "update test set var11 = FILE_READ('classpath:logo-dev.jpg') where var1 = 1000",
-          "update test2 set var11 = FILE_READ('classpath:h2-logo-2.png') where var1 = 1");
+          "update test2 set var11 = FILE_READ('classpath:h2-logo-2.png') where var1 = 1"
+  );
 
   private static final Operation OPERATIONS = sequenceOf(DELETE_ALL, INSERT_MOVIE, INSERT_ACTOR, INSERT_INTERPRETATION,
                                                          INSERT_TEST, INSERT_TEST2, SQL);

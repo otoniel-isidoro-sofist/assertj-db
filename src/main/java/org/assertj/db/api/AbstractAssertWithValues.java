@@ -20,6 +20,7 @@ import org.assertj.db.type.DateTimeValue;
 import org.assertj.db.type.DateValue;
 import org.assertj.db.type.TimeValue;
 import org.assertj.db.type.ValueType;
+
 import java.util.UUID;
 
 /**
@@ -35,6 +36,7 @@ import java.util.UUID;
 public abstract class AbstractAssertWithValues <E extends AbstractAssertWithValues<E, O>, O extends OriginWithColumnsAndRowsFromChange>
         extends AbstractAssertWithOriginWithColumnsAndRowsFromChange<E, O>
         implements ValueAssert,
+                   AssertOnValueClass<E>,
                    AssertOnValueType<E>,
                    AssertOnValueNullity<E>,
                    AssertOnValueEquality<E>,
@@ -57,6 +59,12 @@ public abstract class AbstractAssertWithValues <E extends AbstractAssertWithValu
   AbstractAssertWithValues(Class<E> selfType, O origin, Object value) {
     super(selfType, origin);
     this.value = value;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public E isOfClass(Class expected) {
+    return AssertionsOnValueClass.isOfClass(myself, info, value, expected);
   }
 
   /** {@inheritDoc} */
@@ -133,6 +141,12 @@ public abstract class AbstractAssertWithValues <E extends AbstractAssertWithValu
 
   /** {@inheritDoc} */
   @Override
+  public E isEqualTo(Object expected) {
+    return AssertionsOnValueEquality.isEqualTo(myself, info, value, expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
   public E isEqualTo(Boolean expected) {
     return AssertionsOnValueEquality.isEqualTo(myself, info, value, expected);
   }
@@ -189,6 +203,12 @@ public abstract class AbstractAssertWithValues <E extends AbstractAssertWithValu
   @Override
   public E isEqualTo(DateTimeValue expected) {
     return AssertionsOnValueEquality.isEqualTo(myself, info, value, expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public E isNotEqualTo(Object expected) {
+    return AssertionsOnValueNonEquality.isNotEqualTo(myself, info, value, expected);
   }
 
   /** {@inheritDoc} */

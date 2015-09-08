@@ -54,7 +54,7 @@ public class AssertOnValueEquality_IsEqualTo_Number_Test extends AbstractTest {
   }
 
   /**
-   * This method should fail because the value is no equal to.
+   * This method should fail because the value is not equal to.
    */
   @Test
   @NeedReload
