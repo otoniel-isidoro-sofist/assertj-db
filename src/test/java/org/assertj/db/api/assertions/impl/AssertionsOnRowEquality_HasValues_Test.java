@@ -15,13 +15,16 @@ package org.assertj.db.api.assertions.impl;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.WritableAssertionInfo;
 import org.assertj.db.api.TableAssert;
+import org.assertj.db.common.AbstractTest;
 import org.assertj.db.type.Table;
+import org.assertj.db.type.Value;
 import org.junit.Test;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.db.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -33,19 +36,21 @@ import static org.junit.Assert.fail;
  * @author Régis Pouiller
  *
  */
-public class AssertionsOnRowEquality_HasValues_Test {
+public class AssertionsOnRowEquality_HasValues_Test extends AbstractTest {
 
   /**
    * This method tests the {@code hasValues} assertion method.
    */
   @Test
-  public void test_has_values() {
+  public void test_has_values() throws Exception {
     WritableAssertionInfo info = new WritableAssertionInfo();
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    List<Object> list = new ArrayList<Object>(Arrays.asList(1, "Weaver", "Sigourney", Date.valueOf("1949-10-08")));
+    List<Value> list = new ArrayList<>(Arrays.asList(getValue(null, 1), getValue(null, "Weaver"), getValue(null,
+                                                                                                           "Sigourney"),
+                                                     getValue(null, Date.valueOf("1949-10-08")), getValue(null, new Locale("fr"))));
     TableAssert tableAssert2 = AssertionsOnRowEquality.hasValues(tableAssert, info, list, 1, "Weaver", "Sigourney",
-                                                                 "1949-10-08");
+                                                                 "1949-10-08", Locale.FRENCH);
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
@@ -53,12 +58,14 @@ public class AssertionsOnRowEquality_HasValues_Test {
    * This method should fail because the values are different.
    */
   @Test
-  public void should_fail_because_values_are_different() {
+  public void should_fail_because_values_are_different() throws Exception {
     WritableAssertionInfo info = new WritableAssertionInfo();
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    List<Object> list = new ArrayList<Object>(Arrays.asList(1, "Weaver", "Sigourney", Date.valueOf("1949-10-08")));
+    List<Value> list = new ArrayList<>(Arrays.asList(getValue(null, 1), getValue(null, "Weaver"), getValue(null,
+                                                                                                           "Sigourney"),
+                                                     getValue(null, Date.valueOf("1949-10-08"))));
     try {
       AssertionsOnRowEquality.hasValues(tableAssert, info, list, 1, "Weaverr", "Sigourney", "1949-10-08");
       fail("An exception must be raised");
@@ -80,18 +87,18 @@ public class AssertionsOnRowEquality_HasValues_Test {
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    List<Object> list = new ArrayList<Object>(Arrays.asList(1, "Weaver", "Sigourney", Date.valueOf("1949-10-08")));
+    List<Value> list = new ArrayList<>(Arrays.asList(getValue(null, 1), getValue(null, "Weaver"), getValue(null,
+                                                                                                           "Sigourney"),
+                                                     getValue(null, Date.valueOf("1949-10-08"))));
     try {
       AssertionsOnRowEquality.hasValues(tableAssert, info, list, 1, true, "Sigourney", "1949-10-08");
       fail("An exception must be raised");
     } catch (AssertionError e) {
       Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
-                                                      + "Expecting that the value at index 1:%n"
-                                                      + "  <\"Weaver\">%n"
-                                                      + "to be of type%n"
-                                                      + "  <[BOOLEAN]>%n"
-                                                      + "but was of type%n"
-                                                      + "  <TEXT>"));
+                                                                    + "Expecting:%n"
+                                                                    + "  \"TEXT\" : <\"Weaver\">%n"
+                                                                    + "to be compatible with %n"
+                                                                    + "  java.lang.Boolean : <true>"));
     }
   }
 
@@ -104,7 +111,9 @@ public class AssertionsOnRowEquality_HasValues_Test {
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    List<Object> list = new ArrayList<Object>(Arrays.asList(1, new byte[] {0, 1}, "Sigourney", Date.valueOf("1949-10-08")));
+    List<Value> list = new ArrayList<>(Arrays.asList(getValue(null, 1), getValue(null, new byte[] {0, 1}),
+                                                     getValue(null, "Sigourney"),
+                                                     getValue(null, Date.valueOf("1949-10-08"))));
     try {
       AssertionsOnRowEquality.hasValues(tableAssert, info, list, 1, new byte[] { 2, 3 }, "Sigourney", "1949-10-08");
       fail("An exception must be raised");

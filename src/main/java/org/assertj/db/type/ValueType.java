@@ -12,12 +12,6 @@
  */
 package org.assertj.db.type;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.UUID;
-
 /**
  * Enumeration of the different type of value that are in the database.
  * 
@@ -65,49 +59,8 @@ public enum ValueType {
   NOT_IDENTIFIED;
 
   /**
-   * Returns the type of the actual value (data).
-   * 
-   * @param value The actual value
-   * @return The type of the actual value
-   */
-  public static ValueType getType(Object value) {
-    if (value instanceof byte[]) {
-      return BYTES;
-    }
-    if (value instanceof Boolean) {
-      return BOOLEAN;
-    }
-    if (value instanceof String) {
-      return TEXT;
-    }
-    if (value instanceof Date) {
-      return DATE;
-    }
-    if (value instanceof Time) {
-      return TIME;
-    }
-    if (value instanceof Timestamp) {
-      return DATE_TIME;
-    }
-    if (value instanceof java.util.UUID) {
-      return UUID;
-    }
-    if (value instanceof Byte
-        || value instanceof Short
-        || value instanceof Integer
-        || value instanceof Long
-        || value instanceof Float
-        || value instanceof Double
-        || value instanceof BigDecimal) {
-
-      return NUMBER;
-    }
-    return NOT_IDENTIFIED;
-  }
-
-  /**
    * Returns the types which are possible for the actual value (data) for the comparison with an expected value.
-   * 
+   *
    * @param expected The expected value
    * @return The possible types of the actual value
    */
@@ -134,7 +87,7 @@ public enum ValueType {
     if (expected instanceof Number) {
       return new ValueType[] { NUMBER };
     }
-    if (expected instanceof UUID) {
+    if (expected instanceof java.util.UUID) {
       return new ValueType[] { UUID };
     }
     return new ValueType[] { NOT_IDENTIFIED };

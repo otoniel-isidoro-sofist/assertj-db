@@ -16,6 +16,7 @@ import org.assertj.core.api.WritableAssertionInfo;
 import org.assertj.core.internal.Failures;
 import org.assertj.db.api.AbstractAssert;
 import org.assertj.db.exception.AssertJDBException;
+import org.assertj.db.type.Value;
 
 import static org.assertj.db.error.ShouldBeValueClass.shouldBeValueClass;
 
@@ -49,17 +50,20 @@ public class AssertionsOnValueClass {
    * @param value        The value.
    * @param classOfValue The expected class to compare to.
    * @return {@code this} assertion object.
-   * @throws AssertionError If the class of the value is different to the class in parameter.
+   * @throws AssertionError     If the class of the value is different to the class in parameter.
+   * @throws AssertJDBException If the class is {@code null}.
    * @since 1.1.0
    */
-  public static <A extends AbstractAssert> A isOfClass(A assertion, WritableAssertionInfo info, Object value,
+  public static <A extends AbstractAssert> A isOfClass(A assertion, WritableAssertionInfo info, Value value,
                                                        Class<?> classOfValue) {
 
-    AssertionsOnValueNullity.isNotNull(assertion, info, value);
+    if (value.getValue() == null) {
+      throw failures.failure(info, shouldBeValueClass(value, classOfValue));
+    }
     if (classOfValue == null) {
       throw new AssertJDBException("Class of the value is null");
     }
-    Class testedClass = value.getClass();
+    Class testedClass = value.getValue().getClass();
     if (!classOfValue.isAssignableFrom(testedClass)) {
       throw failures.failure(info, shouldBeValueClass(value, classOfValue));
     }

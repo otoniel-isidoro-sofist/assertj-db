@@ -15,31 +15,34 @@ package org.assertj.db.api.assertions.impl;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.WritableAssertionInfo;
 import org.assertj.db.api.TableAssert;
+import org.assertj.db.common.AbstractTest;
 import org.assertj.db.type.Table;
 import org.assertj.db.type.ValueType;
 import org.junit.Test;
+
+import java.util.Locale;
 
 import static org.assertj.db.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
  * Tests on {@link AssertionsOnValueType} class :
- * {@link AssertionsOnValueType#isOfType(org.assertj.db.api.AbstractAssert, org.assertj.core.api.WritableAssertionInfo, Object, org.assertj.db.type.ValueType)} method.
+ * {@link AssertionsOnValueType#isOfType(org.assertj.db.api.AbstractAssert, org.assertj.core.api.WritableAssertionInfo, org.assertj.db.type.Value, org.assertj.db.type.ValueType)} method.
  *
  * @author Régis Pouiller
  *
  */
-public class AssertionsOnValueType_IsOfType_Test {
+public class AssertionsOnValueType_IsOfType_Test extends AbstractTest {
 
   /**
    * This method tests the {@code isOfType} assertion method.
    */
   @Test
-  public void test_is_of_type() {
+  public void test_is_of_type() throws Exception {
     WritableAssertionInfo info = new WritableAssertionInfo();
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
-    TableAssert tableAssert2 = AssertionsOnValueType.isOfType(tableAssert, info, "test", ValueType.TEXT);
+    TableAssert tableAssert2 = AssertionsOnValueType.isOfType(tableAssert, info, getValue(null, "test"), ValueType.TEXT);
     Assertions.assertThat(tableAssert2).isSameAs(tableAssert);
   }
 
@@ -47,13 +50,13 @@ public class AssertionsOnValueType_IsOfType_Test {
    * This method should fail because the value is not of type.
    */
   @Test
-  public void should_fail_because_value_is_not_of_type() {
+  public void should_fail_because_value_is_not_of_type() throws Exception {
     WritableAssertionInfo info = new WritableAssertionInfo();
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
     try {
-      AssertionsOnValueType.isOfType(tableAssert, info, 8, ValueType.TEXT);
+      AssertionsOnValueType.isOfType(tableAssert, info, getValue(null, 8), ValueType.TEXT);
       fail("An exception must be raised");
     } catch (AssertionError e) {
       Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
@@ -64,19 +67,43 @@ public class AssertionsOnValueType_IsOfType_Test {
                                                       + "but was of type%n"
                                                       + "  <NUMBER>"));
     }
+    try {
+      AssertionsOnValueType.isOfType(tableAssert, info, getValue(null, null), ValueType.TEXT);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <null>%n"
+                                                                    + "to be of type%n"
+                                                                    + "  <TEXT>%n"
+                                                                    + "but was of type%n"
+                                                                    + "  <NOT_IDENTIFIED>"));
+    }
+    try {
+      AssertionsOnValueType.isOfType(tableAssert, info, getValue(null, Locale.FRENCH), ValueType.TEXT);
+      fail("An exception must be raised");
+    } catch (AssertionError e) {
+      Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"
+                                                                    + "Expecting:%n"
+                                                                    + "  <fr>%n"
+                                                                    + "to be of type%n"
+                                                                    + "  <TEXT>%n"
+                                                                    + "but was of type%n"
+                                                                    + "  <NOT_IDENTIFIED> (java.util.Locale)"));
+    }
   }
 
   /**
    * This method should fail because the value is a stringbuilder.
    */
   @Test
-  public void should_fail_because_value_is_a_stringbuilder() {
+  public void should_fail_because_value_is_a_stringbuilder() throws Exception {
     WritableAssertionInfo info = new WritableAssertionInfo();
     info.description("description");
     Table table = new Table();
     TableAssert tableAssert = assertThat(table);
     try {
-      AssertionsOnValueType.isOfType(tableAssert, info, new StringBuilder("text"), ValueType.TEXT);
+      AssertionsOnValueType.isOfType(tableAssert, info, getValue(null, new StringBuilder("text")), ValueType.TEXT);
       fail("An exception must be raised");
     } catch (AssertionError e) {
       Assertions.assertThat(e.getMessage()).isEqualTo(String.format("[description] %n"

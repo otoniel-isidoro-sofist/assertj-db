@@ -14,12 +14,14 @@ package org.assertj.db.api;
 
 import org.assertj.db.api.assertions.*;
 import org.assertj.db.api.assertions.impl.*;
-import org.assertj.db.api.navigation.ColumnAssert;
+import org.assertj.db.navigation.Position;
+import org.assertj.db.navigation.element.ColumnElement;
 import org.assertj.db.type.*;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.db.util.Descriptions.getColumnValueDescription;
 
 /**
  * Base class for all {@link Column}s assertions.
@@ -36,13 +38,19 @@ import java.util.UUID;
  */
 public abstract class AbstractColumnAssert<D extends AbstractDbData<D>, A extends AbstractDbAssert<D, A, C, CV, R, RV>, C extends AbstractColumnAssert<D, A, C, CV, R, RV>, CV extends AbstractColumnValueAssert<D, A, C, CV, R, RV>, R extends AbstractRowAssert<D, A, C, CV, R, RV>, RV extends AbstractRowValueAssert<D, A, C, CV, R, RV>>
         extends AbstractSubAssert<D, A, C, CV, C, CV, R, RV>
-        implements ColumnAssert,
+        implements ColumnElement,
                    AssertOnColumnClass<C>,
                    AssertOnColumnEquality<C>,
+                   AssertOnColumnContent<C>,
                    AssertOnNumberOfRows<C>,
                    AssertOnColumnName<C>,
                    AssertOnColumnType<C>,
                    AssertOnColumnNullity<C> {
+
+  /**
+   * Position of navigation to value.
+   */
+  protected final Position<C, CV, Value> valuePosition;
 
   /**
    * Column on which do the assertion.
@@ -57,21 +65,30 @@ public abstract class AbstractColumnAssert<D extends AbstractDbData<D>, A extend
    * @param valueType Class of the assert on the value : a sub-class of {@code AbstractColumnValueAssert}.
    */
   AbstractColumnAssert(A originalDbAssert, Class<C> selfType, Class<CV> valueType, Column column) {
-    super(originalDbAssert, selfType, valueType);
+    super(originalDbAssert, selfType);
     this.column = column;
+    valuePosition = new Position<C, CV, Value>(selfType.cast(this), valueType) {
+      @Override protected String getDescription(int index) {
+        return getValueDescription(index);
+      }
+    };
   }
 
   /** {@inheritDoc} */
   @Override
-  protected CV getValueAssertInstance(Class<CV> valueAssertType, int index, Object value) throws Exception {
-    Constructor<CV> constructor = valueAssertType.getDeclaredConstructor(myself.getClass(), Object.class);
-    CV instance = constructor.newInstance(this, value);
-    return instance.as("Value at index " + index + " of " + info.descriptionText());
+  protected String getValueDescription(int index) {
+    return getColumnValueDescription(info, index);
   }
 
   /** {@inheritDoc} */
   @Override
-  protected List<Object> getValuesList() {
+  protected Position<C, CV, Value> getValuePosition() {
+    return valuePosition;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  protected List<Value> getValuesList() {
     return column.getValuesList();
   }
 
@@ -83,7 +100,7 @@ public abstract class AbstractColumnAssert<D extends AbstractDbData<D>, A extend
 
   /** {@inheritDoc} */
   @Override
-  public C isOfClass(Class expected, boolean lenient) {
+  public C isOfClass(Class<?> expected, boolean lenient) {
     return AssertionsOnColumnClass.isOfClass(myself, info, getValuesList(), expected, lenient);
   }
 
@@ -211,6 +228,60 @@ public abstract class AbstractColumnAssert<D extends AbstractDbData<D>, A extend
   @Override
   public C hasValues(DateTimeValue... expected) {
     return AssertionsOnColumnEquality.hasValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(Object... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(Boolean... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(Number... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(byte[]... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(String... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(UUID... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(DateValue... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(TimeValue... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public C containsValues(DateTimeValue... expected) {
+    return AssertionsOnColumnContent.containsValues(myself, info, getValuesList(), expected);
   }
 
   /** {@inheritDoc} */

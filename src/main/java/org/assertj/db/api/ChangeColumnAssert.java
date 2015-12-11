@@ -14,14 +14,15 @@ package org.assertj.db.api;
 
 import org.assertj.db.api.assertions.*;
 import org.assertj.db.api.assertions.impl.*;
-import org.assertj.db.api.navigation.ColumnAssert;
-import org.assertj.db.api.origin.OriginWithValuesFromColumn;
-import org.assertj.db.type.DateTimeValue;
-import org.assertj.db.type.DateValue;
-import org.assertj.db.type.TimeValue;
-import org.assertj.db.type.ValueType;
+import org.assertj.db.navigation.PositionWithPoints;
+import org.assertj.db.navigation.element.ColumnElement;
+import org.assertj.db.navigation.origin.OriginWithValuesFromColumn;
+import org.assertj.db.type.*;
 
 import java.util.UUID;
+
+import static org.assertj.db.util.Descriptions.getColumnValueAtEndPointDescription;
+import static org.assertj.db.util.Descriptions.getColumnValueAtStartPointDescription;
 
 /**
  * Assertion methods for a {@code Column} of a {@code Change}.
@@ -31,8 +32,8 @@ import java.util.UUID;
  */
 public class ChangeColumnAssert
         extends AbstractAssertWithOriginWithColumnsAndRowsFromChange<ChangeColumnAssert, ChangeAssert>
-        implements ColumnAssert,
-                   OriginWithValuesFromColumn,
+        implements ColumnElement,
+                   OriginWithValuesFromColumn<ChangesAssert, ChangeAssert, ChangeColumnAssert, ChangeRowAssert, ChangeColumnValueAssert>,
                    AssertOnColumnClass<ChangeColumnAssert>,
                    AssertOnColumnOfChangeEquality<ChangeColumnAssert>,
                    AssertOnModifiedColumn<ChangeColumnAssert>,
@@ -46,55 +47,53 @@ public class ChangeColumnAssert
   /**
    * The actual value at start point.
    */
-  private final Object valueAtStartPoint;
+  private final Value valueAtStartPoint;
 
   /**
    * The actual value at end point.
    */
-  private final Object valueAtEndPoint;
+  private final Value valueAtEndPoint;
 
   /**
-   * The assertion on the value at start point.
+   * Position of navigation to row.
    */
-  private ChangeColumnValueAssert changeColumnValueAssertAtStartPoint;
-  /**
-   * The assertion on the value at end point.
-   */
-  private ChangeColumnValueAssert changeColumnValueAssertAtEndPoint;
+  private final PositionWithPoints<ChangeColumnAssert, ChangeColumnValueAssert, Value> valuePosition;
 
   /**
    * Constructor.
    *
    * @param columnName The column name.
-   * @param origin The assertion of {@link org.assertj.db.api.origin.Origin}.
+   * @param origin The assertion of {@link org.assertj.db.navigation.origin.Origin}.
    * @param valueAtStartPoint The value at start point.
    * @param valueAtEndPoint The value at end point.
    */
-  ChangeColumnAssert(ChangeAssert origin, String columnName, Object valueAtStartPoint, Object valueAtEndPoint) {
+  public ChangeColumnAssert(ChangeAssert origin, String columnName, Value valueAtStartPoint, Value valueAtEndPoint) {
     super(ChangeColumnAssert.class, origin);
     this.columnName = columnName;
     this.valueAtStartPoint = valueAtStartPoint;
     this.valueAtEndPoint = valueAtEndPoint;
+    valuePosition = new PositionWithPoints<ChangeColumnAssert, ChangeColumnValueAssert, Value>(this, ChangeColumnValueAssert.class, Value.class, valueAtStartPoint, valueAtEndPoint) {
+
+      @Override protected String getDescriptionAtStartPoint() {
+        return getColumnValueAtStartPointDescription(info);
+      }
+
+      @Override protected String getDescriptionAtEndPoint() {
+        return getColumnValueAtEndPointDescription(info);
+      }
+    };
   }
 
   /** {@inheritDoc} */
   @Override
   public ChangeColumnValueAssert valueAtStartPoint() {
-    if (changeColumnValueAssertAtStartPoint == null) {
-      String string = "Value at start point of " + info.descriptionText();
-      changeColumnValueAssertAtStartPoint = new ChangeColumnValueAssert(this, valueAtStartPoint).as(string);
-    }
-    return changeColumnValueAssertAtStartPoint;
+    return valuePosition.getInstanceAtStartPoint();
   }
 
   /** {@inheritDoc} */
   @Override
   public ChangeColumnValueAssert valueAtEndPoint() {
-    if (changeColumnValueAssertAtEndPoint == null) {
-      String string = "Value at end point of " + info.descriptionText();
-      changeColumnValueAssertAtEndPoint = new ChangeColumnValueAssert(this, valueAtEndPoint).as(string);
-    }
-    return changeColumnValueAssertAtEndPoint;
+    return valuePosition.getInstanceAtEndPoint();
   }
 
   /** {@inheritDoc} */

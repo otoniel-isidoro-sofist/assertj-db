@@ -15,14 +15,14 @@ package org.assertj.db.api.assertions.impl;
 import org.assertj.core.api.WritableAssertionInfo;
 import org.assertj.core.internal.Failures;
 import org.assertj.db.api.AbstractAssert;
+import org.assertj.db.type.Value;
 import org.assertj.db.type.ValueType;
 import org.assertj.db.util.Values;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.db.error.ShouldBeCompatible.shouldBeCompatible;
 import static org.assertj.db.error.ShouldBeEqual.shouldBeEqual;
-import static org.assertj.db.error.ShouldBeValueTypeOfAny.shouldBeValueTypeOfAny;
 import static org.assertj.db.util.Values.areEqual;
 
 /**
@@ -57,17 +57,16 @@ public class AssertionsOnRowEquality {
    * @throws AssertionError If the value is not equal to the values in parameter.
    */
   public static <A extends AbstractAssert> A hasValues(A assertion, WritableAssertionInfo info,
-                                                       List<Object> valuesList, Object... expected) {
+                                                       List<Value> valuesList, Object... expected) {
     AssertionsOnNumberOfColumns.hasNumberOfColumns(assertion, info, valuesList.size(), expected.length);
     int index = 0;
-    for (Object value : valuesList) {
-      ValueType[] possibleTypes = ValueType.getPossibleTypesForComparison(expected[index]);
-      ValueType type = ValueType.getType(value);
-      if (!Arrays.asList(possibleTypes).contains(type)) {
-        throw failures.failure(info, shouldBeValueTypeOfAny(index, value, type, possibleTypes));
+    for (Value value : valuesList) {
+      Object object = expected[index];
+      if (!value.isComparisonPossible(object)) {
+        throw failures.failure(info, shouldBeCompatible(value, object));
       }
       if (!areEqual(value, expected[index])) {
-        if (ValueType.getType(value) == ValueType.BYTES) {
+        if (value.getValueType() == ValueType.BYTES) {
           throw failures.failure(info, shouldBeEqual(index));
         } else {
           throw failures.failure(info, shouldBeEqual(index, Values.getRepresentationFromValueInFrontOfExpected(value,

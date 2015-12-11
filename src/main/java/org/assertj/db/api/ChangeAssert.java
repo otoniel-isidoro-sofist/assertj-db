@@ -14,17 +14,18 @@ package org.assertj.db.api;
 
 import org.assertj.db.api.assertions.*;
 import org.assertj.db.api.assertions.impl.*;
-import org.assertj.db.api.origin.OriginWithColumnsAndRowsFromChange;
 import org.assertj.db.exception.AssertJDBException;
-import org.assertj.db.type.Change;
-import org.assertj.db.type.ChangeType;
-import org.assertj.db.type.DataType;
-import org.assertj.db.type.Row;
+import org.assertj.db.navigation.PositionWithPoints;
+import org.assertj.db.navigation.element.ChangeElement;
+import org.assertj.db.navigation.origin.OriginWithColumnsAndRowsFromChange;
+import org.assertj.db.type.*;
 import org.assertj.db.util.Changes;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.db.util.Descriptions.*;
 
 /**
  * Assertion methods for a {@link Change}.
@@ -33,7 +34,8 @@ import java.util.Map;
  */
 public class ChangeAssert
         extends AbstractAssertWithOriginWithChanges<ChangeAssert, ChangesAssert>
-        implements OriginWithColumnsAndRowsFromChange,
+        implements ChangeElement,
+                   OriginWithColumnsAndRowsFromChange<ChangesAssert, ChangeAssert, ChangeColumnAssert, ChangeRowAssert>,
                    AssertOnDataType<ChangeAssert>,
                    AssertOnPrimaryKey<ChangeAssert>,
                    AssertOnChangeType<ChangeAssert>,
@@ -46,13 +48,9 @@ public class ChangeAssert
   private final Change change;
 
   /**
-   * The assertion on the row at start point.
+   * Position of navigation to row.
    */
-  private ChangeRowAssert changeRowAssertAtStartPoint;
-  /**
-   * The assertion on the row at end point.
-   */
-  private ChangeRowAssert changeRowAssertAtEndPoint;
+  private final PositionWithPoints<ChangeAssert, ChangeRowAssert, Row> rowPosition;
 
   /**
    * Index of the next value to get.
@@ -66,32 +64,34 @@ public class ChangeAssert
   /**
    * Constructor.
    *
-   * @param origin The assertion of {@link org.assertj.db.api.origin.Origin}.
+   * @param origin The assertion of {@link org.assertj.db.navigation.origin.Origin}.
    * @param change The {@link Change} on which are the assertions.
    */
   ChangeAssert(ChangesAssert origin, Change change) {
     super(ChangeAssert.class, origin);
     this.change = change;
+    rowPosition = new PositionWithPoints<ChangeAssert, ChangeRowAssert, Row>(this, ChangeRowAssert.class, Row.class, change.getRowAtStartPoint(), change.getRowAtEndPoint()) {
+
+      @Override protected String getDescriptionAtStartPoint() {
+        return getRowAtStartPointDescription(info);
+      }
+
+      @Override protected String getDescriptionAtEndPoint() {
+        return getRowAtEndPointDescription(info);
+      }
+    };
   }
 
   /** {@inheritDoc} */
   @Override
   public ChangeRowAssert rowAtStartPoint() {
-    if (changeRowAssertAtStartPoint == null) {
-      String string = "Row at start point of " + info.descriptionText();
-      changeRowAssertAtStartPoint = new ChangeRowAssert(this, change.getRowAtStartPoint()).as(string);
-    }
-    return changeRowAssertAtStartPoint;
+    return rowPosition.getInstanceAtStartPoint();
   }
 
   /** {@inheritDoc} */
   @Override
   public ChangeRowAssert rowAtEndPoint() {
-    if (changeRowAssertAtEndPoint == null) {
-      String string = "Row at end point of " + info.descriptionText();
-      changeRowAssertAtEndPoint = new ChangeRowAssert(this, change.getRowAtEndPoint()).as(string);
-    }
-    return changeRowAssertAtEndPoint;
+    return rowPosition.getInstanceAtEndPoint();
   }
 
   /**
@@ -115,14 +115,14 @@ public class ChangeAssert
     }
     Row rowAtStartPoint = change.getRowAtStartPoint();
     Row rowAtEndPoint = change.getRowAtEndPoint();
-    Object valueAtStartPoint = null;
-    Object valueAtEndPoint = null;
+    Value valueAtStartPoint = Value.NULL;
+    Value valueAtEndPoint = Value.NULL;
     if (rowAtStartPoint != null) {
-      List<Object> valuesAtStartPoint = rowAtStartPoint.getValuesList();
+      List<Value> valuesAtStartPoint = rowAtStartPoint.getValuesList();
       valueAtStartPoint = valuesAtStartPoint.get(index);
     }
     if (rowAtEndPoint != null) {
-      List<Object> valuesAtEndPoint = rowAtEndPoint.getValuesList();
+      List<Value> valuesAtEndPoint = rowAtEndPoint.getValuesList();
       valueAtEndPoint = valuesAtEndPoint.get(index);
     }
     List<String> columnsNameList = change.getColumnsNameList();
@@ -130,7 +130,7 @@ public class ChangeAssert
     ChangeColumnAssert instance = new ChangeColumnAssert(this, columnName, valueAtStartPoint, valueAtEndPoint);
     columnsAssertMap.put(index, instance);
     indexNextColumn = index + 1;
-    return instance.as("Column at index " + index + " (column name : " + columnName + ") of " + info.descriptionText());
+    return instance.as(getColumnDescription(info, index, columnName));
   }
 
   /** {@inheritDoc} */
